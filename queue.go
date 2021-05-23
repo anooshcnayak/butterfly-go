@@ -32,11 +32,10 @@ type WriterConfig struct {
 	Topic string
 	BatchTimeout time.Duration
 	WriteTimeout time.Duration
-	ReadTimeout time.Duration
 	BatchSize int
 	Logger Logger
 	ErrorLogger Logger
-	StatsdClient StatsdClient
+	StatsdClient *StatsdClient
 }
 
 type ReaderConfig struct {
@@ -48,7 +47,7 @@ type ReaderConfig struct {
 	CommitInterval time.Duration
 	Logger Logger
 	ErrorLogger Logger
-	StatsdClient StatsdClient
+	StatsdClient *StatsdClient
 }
 
 func NewWriter(writerConfig *WriterConfig) Writer {

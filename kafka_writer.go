@@ -28,9 +28,7 @@ func NewKafkaWriter(writerConfig *WriterConfig) *KafkaWriter {
 		Topic:        writerConfig.Topic,
 		BatchTimeout: writerConfig.BatchTimeout,
 		WriteTimeout: writerConfig.WriteTimeout,
-		ReadTimeout:  writerConfig.ReadTimeout,
-		//BatchSize: 1000,
-		//Balancer: &kafka.LeastBytes{},
+		BatchSize: writerConfig.BatchSize,
 	}
 	return w
 }
