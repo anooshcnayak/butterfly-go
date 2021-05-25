@@ -12,7 +12,7 @@ type KafkaWriter struct {
 	topic  string
 	logger Logger
 	errorLogger Logger
-	statsdClient StatsdClient
+	statsdClient *StatsdClient
 }
 
 func NewKafkaWriter(writerConfig *WriterConfig) *KafkaWriter {
