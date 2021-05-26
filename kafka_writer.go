@@ -3,23 +3,16 @@ package butterfly
 import (
 	"context"
 	"github.com/segmentio/kafka-go"
-	"time"
 )
 
 type KafkaWriter struct {
 	writer       *kafka.Writer
 	topic        string
-	logger       Logger
-	errorLogger  Logger
-	statsdClient *StatsdClient
 }
 
 func NewKafkaWriter(writerConfig *WriterConfig) *KafkaWriter {
 	w := &KafkaWriter{
 		topic:        writerConfig.Topic,
-		logger:       writerConfig.Logger,
-		errorLogger:  writerConfig.ErrorLogger,
-		statsdClient: writerConfig.StatsdClient,
 	}
 
 	w.writer = &kafka.Writer{
@@ -33,16 +26,8 @@ func NewKafkaWriter(writerConfig *WriterConfig) *KafkaWriter {
 }
 
 func (w *KafkaWriter) Write(ctx context.Context, logs ...WriteMessage) error {
-	startTime := time.Now()
-	w.statsdClient.PublishKafkaWriteOps(w.topic)
-	defer func() {
-		w.statsdClient.PublishKafkaWriteLatency(w.topic, startTime)
-	}()
-
 	var messages []kafka.Message
 	for _, log := range logs {
-		w.logger.Printf("[butterfly] Topic:: %s -- message: %+v", w.topic, log)
-
 		var topic = log.Topic
 		if len(topic) == 0 {
 			topic = w.topic
@@ -59,10 +44,6 @@ func (w *KafkaWriter) Write(ctx context.Context, logs ...WriteMessage) error {
 	}
 
 	err := w.writer.WriteMessages(ctx, messages...)
-	if err != nil {
-		w.statsdClient.PublishKafkaWriteError(w.topic)
-		w.logger.Printf("[butterfly] Error in Writing.. %s", err.Error())
-	}
 	return err
 }
 

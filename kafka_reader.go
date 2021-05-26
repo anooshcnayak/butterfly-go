@@ -9,18 +9,19 @@ type KafkaReader struct {
 	reader       *kafka.Reader
 	groupId      string
 	topics       []string
-	logger       Logger
-	errorLogger  Logger
-	statsdClient StatsdClient
 }
 
 func NewKafkaReader(config *ReaderConfig) *KafkaReader {
 
+	var startOffset = config.StartOffset
+	if config.StartOffset == 0 {
+		startOffset = LastOffset
+	}
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:       config.Endpoint,
 		GroupID:       config.GroupId,
 		GroupTopics:   config.Topics,
-		StartOffset:   config.Offset,
+		StartOffset:   startOffset,
 		QueueCapacity: config.QueueCapacity,
 		//CommitInterval: 5 * time.Second,
 	})
@@ -37,17 +38,11 @@ func NewKafkaReader(config *ReaderConfig) *KafkaReader {
 	Also commits before returning
 */
 func (r *KafkaReader) ReadMessage(ctx context.Context) (ReadMessage, error) {
-	r.logger.Printf("[butterfly] Fetching message : %v", r.groupId)
-
 	kMessage, err := r.reader.ReadMessage(ctx)
-	r.statsdClient.PublishKafkaReadOps(kMessage.Topic)
 
 	if err != nil {
-		r.errorLogger.Printf("[butterfly] Error in fetching message %v -- %s", r.groupId, err.Error())
-		r.statsdClient.PublishKafkaReadError()
 		return ReadMessage{}, err
 	}
-	r.logger.Printf("[butterfly] Fetched message %v:%v :: %+v", kMessage.Topic, r.groupId, kMessage)
 
 	return ReadMessage{
 		Topic:     kMessage.Topic,
@@ -64,17 +59,12 @@ func (r *KafkaReader) ReadMessage(ctx context.Context) (ReadMessage, error) {
 	Invoke CommitMessage to commit the messages
 */
 func (r *KafkaReader) FetchMessage(ctx context.Context) (ReadMessage, error) {
-	r.logger.Printf("[butterfly] Fetching message : %v", r.groupId)
 
 	kMessage, err := r.reader.FetchMessage(ctx)
-	r.statsdClient.PublishKafkaReadOps(kMessage.Topic)
 
 	if err != nil {
-		r.errorLogger.Printf("[butterfly] Error in fetching message %v -- %s", r.groupId, err.Error())
-		r.statsdClient.PublishKafkaReadError()
 		return ReadMessage{}, err
 	}
-	r.logger.Printf("[butterfly] Fetched message %v:%v :: %+v", kMessage.Topic, r.groupId, kMessage)
 
 	return ReadMessage{
 		Topic:     kMessage.Topic,

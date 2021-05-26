@@ -40,21 +40,24 @@ type WriterConfig struct {
 	BatchTimeout time.Duration
 	WriteTimeout time.Duration
 	BatchSize    int
-	Logger       Logger
-	ErrorLogger  Logger
-	StatsdClient *StatsdClient
+	//Logger       Logger
+	//ErrorLogger  Logger
 }
 
 type ReaderConfig struct {
 	Endpoint       []string
 	GroupId        string
 	Topics         []string
-	Offset         int64
+
+	// StartOffset determines from whence the consumer group should begin
+	// consuming when it finds a partition without a committed offset.  If
+	// non-zero, it must be set to one of FirstOffset or LastOffset.
+	// Default is LastOffset
+	StartOffset    int64
 	QueueCapacity  int
 	CommitInterval time.Duration
-	Logger         Logger
-	ErrorLogger    Logger
-	StatsdClient   *StatsdClient
+	//Logger         Logger
+	//ErrorLogger    Logger
 }
 
 func NewWriter(writerConfig *WriterConfig) Writer {
