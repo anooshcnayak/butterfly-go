@@ -36,7 +36,7 @@ func NewKafkaReader(config *ReaderConfig) *KafkaReader {
 /*
 	Also commits before returning
  */
-func (r *KafkaReader) Read(ctx context.Context) (Message, error) {
+func (r *KafkaReader) ReadMessage(ctx context.Context) (ReadMessage, error) {
 	r.logger.Printf("[butterfly] Fetching message : %v", r.groupId)
 
 	kMessage, err := r.reader.ReadMessage(ctx)
@@ -45,11 +45,11 @@ func (r *KafkaReader) Read(ctx context.Context) (Message, error) {
 	if err != nil {
 		r.errorLogger.Printf("[butterfly] Error in fetching message %v -- %s", r.groupId, err.Error())
 		r.statsdClient.PublishKafkaReadError()
-		return Message{}, err
+		return ReadMessage{}, err
 	}
 	r.logger.Printf("[butterfly] Fetched message %v:%v :: %+v", kMessage.Topic, r.groupId, kMessage)
 
-	return Message{
+	return ReadMessage{
 		Topic:     kMessage.Topic,
 		Partition: kMessage.Partition,
 		Offset:    kMessage.Offset,
@@ -63,7 +63,7 @@ func (r *KafkaReader) Read(ctx context.Context) (Message, error) {
 	FetchMessage does not commit the message
 	Invoke CommitMessage to commit the messages
  */
-func (r KafkaReader) FetchMessage(ctx context.Context) (Message, error) {
+func (r *KafkaReader) FetchMessage(ctx context.Context) (ReadMessage, error) {
 	r.logger.Printf("[butterfly] Fetching message : %v", r.groupId)
 
 	kMessage, err := r.reader.FetchMessage(ctx)
@@ -72,11 +72,11 @@ func (r KafkaReader) FetchMessage(ctx context.Context) (Message, error) {
 	if err != nil {
 		r.errorLogger.Printf("[butterfly] Error in fetching message %v -- %s", r.groupId, err.Error())
 		r.statsdClient.PublishKafkaReadError()
-		return Message{}, err
+		return ReadMessage{}, err
 	}
 	r.logger.Printf("[butterfly] Fetched message %v:%v :: %+v", kMessage.Topic, r.groupId, kMessage)
 
-	return Message{
+	return ReadMessage{
 		Topic:     kMessage.Topic,
 		Partition: kMessage.Partition,
 		Offset:    kMessage.Offset,

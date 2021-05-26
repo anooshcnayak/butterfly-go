@@ -2,7 +2,6 @@ package butterfly
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/segmentio/kafka-go"
 	"time"
 )
@@ -33,7 +32,7 @@ func NewKafkaWriter(writerConfig *WriterConfig) *KafkaWriter {
 	return w
 }
 
-func (w *KafkaWriter) Write(ctx context.Context, logs []interface{}) error {
+func (w *KafkaWriter) Write(ctx context.Context, logs ...WriteMessage) error {
 	startTime := time.Now()
 	w.statsdClient.PublishKafkaWriteOps(w.topic)
 	defer func() {
@@ -43,12 +42,10 @@ func (w *KafkaWriter) Write(ctx context.Context, logs []interface{}) error {
 	var messages []kafka.Message
 	for _, log := range logs {
 		w.logger.Printf("[butterfly] Topic:: %s -- message: %+v", w.topic, log)
-		val, err := json.Marshal(log)
-		if err != nil {
-			w.logger.Printf("[butterfly] Error in Marshalling %s", err.Error())
-			return err
-		}
-		messages = append(messages, kafka.Message{Value: val})
+		messages = append(messages, kafka.Message{
+			Value: log.Value,
+			Key: log.Key,
+		})
 	}
 
 	err := w.writer.WriteMessages(ctx, messages...)

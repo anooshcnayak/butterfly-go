@@ -10,7 +10,7 @@ const (
 	FirstOffset int64 = -2 // The least recent offset available for a partition.
 )
 
-type Message struct {
+type ReadMessage struct {
 	Topic string
 	Partition     int
 	Offset        int64
@@ -19,12 +19,18 @@ type Message struct {
 	Time time.Time
 }
 
+type WriteMessage struct {
+	Key           []byte
+	Value         []byte
+}
+
 type Writer interface {
-	Write(ctx context.Context, logs []interface{}) error
+	Write(ctx context.Context, logs ...WriteMessage) error
 }
 
 type Reader interface {
-	Read(ctx context.Context) (Message, error)
+	ReadMessage(ctx context.Context) (ReadMessage, error)
+	FetchMessage(ctx context.Context) (ReadMessage, error)
 }
 
 type WriterConfig struct {
