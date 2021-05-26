@@ -1,4 +1,4 @@
-module github.com/anooshcnayak/butterfly
+module github.com/anooshcnayak/butterfly-go
 
 go 1.16
 
