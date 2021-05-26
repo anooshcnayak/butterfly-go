@@ -11,17 +11,18 @@ const (
 )
 
 type ReadMessage struct {
-	Topic string
-	Partition     int
-	Offset        int64
-	Key           []byte
-	Value         []byte
-	Time time.Time
+	Topic     string
+	Partition int
+	Offset    int64
+	Key       []byte
+	Value     []byte
+	Time      time.Time
 }
 
 type WriteMessage struct {
-	Key           []byte
-	Value         []byte
+	Key   []byte
+	Value []byte
+	Topic string
 }
 
 type Writer interface {
@@ -34,26 +35,26 @@ type Reader interface {
 }
 
 type WriterConfig struct {
-	Endpoint []string
-	Topic string
+	Endpoint     []string
+	Topic        string
 	BatchTimeout time.Duration
 	WriteTimeout time.Duration
-	BatchSize int
-	Logger Logger
-	ErrorLogger Logger
+	BatchSize    int
+	Logger       Logger
+	ErrorLogger  Logger
 	StatsdClient *StatsdClient
 }
 
 type ReaderConfig struct {
-	Endpoint []string
-	GroupId string
-	Topics []string
-	Offset int64
-	QueueCapacity int
+	Endpoint       []string
+	GroupId        string
+	Topics         []string
+	Offset         int64
+	QueueCapacity  int
 	CommitInterval time.Duration
-	Logger Logger
-	ErrorLogger Logger
-	StatsdClient *StatsdClient
+	Logger         Logger
+	ErrorLogger    Logger
+	StatsdClient   *StatsdClient
 }
 
 func NewWriter(writerConfig *WriterConfig) Writer {

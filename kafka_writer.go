@@ -7,18 +7,18 @@ import (
 )
 
 type KafkaWriter struct {
-	writer *kafka.Writer
-	topic  string
-	logger Logger
-	errorLogger Logger
+	writer       *kafka.Writer
+	topic        string
+	logger       Logger
+	errorLogger  Logger
 	statsdClient *StatsdClient
 }
 
 func NewKafkaWriter(writerConfig *WriterConfig) *KafkaWriter {
 	w := &KafkaWriter{
-		topic: writerConfig.Topic,
-		logger: writerConfig.Logger,
-		errorLogger: writerConfig.ErrorLogger,
+		topic:        writerConfig.Topic,
+		logger:       writerConfig.Logger,
+		errorLogger:  writerConfig.ErrorLogger,
 		statsdClient: writerConfig.StatsdClient,
 	}
 
@@ -27,7 +27,7 @@ func NewKafkaWriter(writerConfig *WriterConfig) *KafkaWriter {
 		Topic:        writerConfig.Topic,
 		BatchTimeout: writerConfig.BatchTimeout,
 		WriteTimeout: writerConfig.WriteTimeout,
-		BatchSize: writerConfig.BatchSize,
+		BatchSize:    writerConfig.BatchSize,
 	}
 	return w
 }
@@ -42,9 +42,19 @@ func (w *KafkaWriter) Write(ctx context.Context, logs ...WriteMessage) error {
 	var messages []kafka.Message
 	for _, log := range logs {
 		w.logger.Printf("[butterfly] Topic:: %s -- message: %+v", w.topic, log)
+
+		var topic = log.Topic
+		if len(topic) == 0 {
+			topic = w.topic
+		}
+		if len(topic) == 0 {
+			continue // No topic, no use of writing
+		}
+
 		messages = append(messages, kafka.Message{
 			Value: log.Value,
-			Key: log.Key,
+			Key:   log.Key,
+			Topic: topic,
 		})
 	}
 

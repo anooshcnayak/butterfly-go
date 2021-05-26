@@ -6,16 +6,16 @@ import (
 )
 
 type KafkaReader struct {
-	reader  *kafka.Reader
-	groupId string
-	topics   []string
-	logger Logger
-	errorLogger Logger
+	reader       *kafka.Reader
+	groupId      string
+	topics       []string
+	logger       Logger
+	errorLogger  Logger
 	statsdClient StatsdClient
 }
 
 func NewKafkaReader(config *ReaderConfig) *KafkaReader {
-	
+
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:       config.Endpoint,
 		GroupID:       config.GroupId,
@@ -28,14 +28,14 @@ func NewKafkaReader(config *ReaderConfig) *KafkaReader {
 	r := &KafkaReader{
 		reader:  reader,
 		groupId: config.GroupId,
-		topics:   config.Topics,
+		topics:  config.Topics,
 	}
 	return r
 }
 
 /*
 	Also commits before returning
- */
+*/
 func (r *KafkaReader) ReadMessage(ctx context.Context) (ReadMessage, error) {
 	r.logger.Printf("[butterfly] Fetching message : %v", r.groupId)
 
@@ -62,7 +62,7 @@ func (r *KafkaReader) ReadMessage(ctx context.Context) (ReadMessage, error) {
 /*
 	FetchMessage does not commit the message
 	Invoke CommitMessage to commit the messages
- */
+*/
 func (r *KafkaReader) FetchMessage(ctx context.Context) (ReadMessage, error) {
 	r.logger.Printf("[butterfly] Fetching message : %v", r.groupId)
 

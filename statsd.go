@@ -1,13 +1,13 @@
 package butterfly
 
 import (
-	"time"
 	"github.com/cactus/go-statsd-client/v5/statsd"
+	"time"
 )
 
 type StatsdConfig struct {
-	Endpoint         string
-	PREFIX			 string
+	Endpoint string
+	PREFIX   string
 }
 
 type StatsdClient struct {
@@ -17,7 +17,7 @@ type StatsdClient struct {
 func NewStatsdClient(config StatsdConfig) (*StatsdClient, error) {
 	var clientConfig = &statsd.ClientConfig{
 		Address: config.Endpoint,
-		Prefix:	 config.PREFIX,
+		Prefix:  config.PREFIX,
 	}
 	statsDClient, err := statsd.NewClientWithConfig(clientConfig)
 
