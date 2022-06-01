@@ -32,6 +32,7 @@ type Writer interface {
 type Reader interface {
 	ReadMessage(ctx context.Context) (ReadMessage, error)
 	FetchMessage(ctx context.Context) (ReadMessage, error)
+	Close(ctx context.Context) error
 }
 
 type WriterConfig struct {
