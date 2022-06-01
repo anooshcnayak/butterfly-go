@@ -75,3 +75,8 @@ func (r *KafkaReader) FetchMessage(ctx context.Context) (ReadMessage, error) {
 		Time:      kMessage.Time,
 	}, err
 }
+
+func (r *KafkaReader) Close(ctx context.Context) error {
+
+	return r.reader.Close()
+}
